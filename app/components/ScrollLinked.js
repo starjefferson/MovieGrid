@@ -105,13 +105,14 @@ function StyleSheet() {
     <style>{`
       #example {
   width: 100%;
-  height: 100vh;
+  height: auto;              /* let content define height */
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #000;
+  padding: 1rem 0;           /* small breathing space */
 }
 
 #example #progress {
@@ -129,7 +130,7 @@ function StyleSheet() {
 #example ul {
   display: flex;
   list-style: none;
-  height: 70vh;
+  height: auto;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 2vh 4vw;
@@ -142,7 +143,7 @@ function StyleSheet() {
 
 #example li {
   flex: 0 0 100vw;   /* full width on mobile */
-  height: 60vh;
+  height: 75vh;      /* bigger cards on small screens */
   border-radius: 1rem;
   scroll-snap-align: start;
 }
@@ -162,7 +163,6 @@ function StyleSheet() {
     flex: 0 0 25vw;   /* four cards on desktop */
     height: 70vh;
   }
-}
-    `}</style>
+} `}</style>
   );
 }
