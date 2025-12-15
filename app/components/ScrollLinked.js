@@ -104,53 +104,65 @@ function StyleSheet() {
   return (
     <style>{`
       #example {
-        width: 100%;
-        height: 100vh;
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #000;
-      }
-      #example #progress {
-        position: absolute;
-        top: 2%;
-        left: 2%;
-        transform: rotate(-90deg);
-        z-index: 10;
-      }
-      #example .bg { stroke: #0b1011; }
-      #example #progress circle { stroke-dashoffset: 0; stroke-width: 10%; fill: none; }
-      #progress .indicator { stroke: var(--accent); }
-      #example ul {
-        display: flex;
-        list-style: none;
-        height: 70vh;
-        overflow-x: auto;
-        overflow-y: hidden;
-        padding: 2vh 4vw;
-        margin: 0;
-        gap: 2vw;
-        scroll-snap-type: x mandatory;
-        flex-wrap: nowrap;
-        width: max-content;
-      }
-      #example li {
-        flex: 0 0 80vw;
-        max-width: 300px;
-        height: 60vh;
-        border-radius: 1rem;
-        scroll-snap-align: start;
-      }
-      #example ::-webkit-scrollbar { height: 6px; background: #fff3; }
-      #example ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
-      @media (min-width: 768px) {
-        #example li { flex: 0 0 40vw; height: 60vh; }
-      }
-      @media (min-width: 1200px) {
-        #example li { flex: 0 0 25vw; height: 70vh; }
-      }
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+}
+
+#example #progress {
+  position: absolute;
+  top: 2%;
+  left: 2%;
+  transform: rotate(-90deg);
+  z-index: 10;
+}
+
+#example .bg { stroke: #0b1011; }
+#example #progress circle { stroke-dashoffset: 0; stroke-width: 10%; fill: none; }
+#progress .indicator { stroke: var(--accent); }
+
+#example ul {
+  display: flex;
+  list-style: none;
+  height: 70vh;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2vh 4vw;
+  margin: 0;
+  gap: 2vw;
+  scroll-snap-type: x mandatory;
+  flex-wrap: nowrap;
+  width: max-content;
+}
+
+#example li {
+  flex: 0 0 100vw;   /* full width on mobile */
+  height: 60vh;
+  border-radius: 1rem;
+  scroll-snap-align: start;
+}
+
+#example ::-webkit-scrollbar { height: 6px; background: #fff3; }
+#example ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+@media (min-width: 768px) {
+  #example li {
+    flex: 0 0 40vw;   /* two cards on tablet */
+    height: 60vh;
+  }
+}
+
+@media (min-width: 1200px) {
+  #example li {
+    flex: 0 0 25vw;   /* four cards on desktop */
+    height: 70vh;
+  }
+}
     `}</style>
   );
 }

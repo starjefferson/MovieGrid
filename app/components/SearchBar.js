@@ -23,7 +23,7 @@ export default function SearchBar ({ onSearch }) {
                     onChange={(e) => setQuery(e.target.value)}
                     autoComplete="on"
                     className="w-35 h-7 px-2 py-2 rounded-md bg-gray-500 text-white"/>
-                    <button type="submit">
+                    <button type="submit" className="hover:bg-gray-400 cursor-pointer">
                         <FaSearch
                         size="25"
                         color="darkgray" /> 
