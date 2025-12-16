@@ -1,5 +1,5 @@
-import ClientWrapper from "../components/ClientWrapper";
-import Footer from "../components/Footer";
+import ClientWrapper from "../../components/ClientWrapper";
+import Footer from "../../components/Footer";
 
 export default function Page() {
   return (

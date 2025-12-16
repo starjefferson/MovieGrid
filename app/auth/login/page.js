@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import LoginFormClient from "@/app/components/LoginFormClient"; // client component for OAuth buttons
+import LoginFormClient from "@/components/LoginFormClient"; // client component for OAuth buttons
 import { auth } from "@/auth"; // use the exported auth function
 
 export default async function LoginPage() {

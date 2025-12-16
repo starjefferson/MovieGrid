@@ -131,7 +131,7 @@ export default function NavBar({ setSearchResults }) {
 
         {settingsOpen && (
           <div className="absolute right-0 top-full bg-gray-900 text-gray-300 rounded-md shadow-lg w-20 pr-2 z-50">
-            <a href="/profile" className="block px-4 py-2 hover:bg-gray-700 rounded">My Profile</a>
+            <a href="/profile" className="block px-4 py-2 hover:bg-gray-700 rounded">Profile</a>
             <a href="/settings" className="block px-4 py-2 hover:bg-gray-700 rounded">Settings</a>
             <a
               href="/logout"
