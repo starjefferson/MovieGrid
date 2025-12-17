@@ -20,10 +20,14 @@ export default function ScrollLinked({ searchResults = [] }) {
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
 
   // ✅ Hydration guard
   useEffect(() => {
     setHydrated(true);
+    if (typeof window !== 'undefined') {
+      setIsMobile(window.innerWidth < 640);
+    }
   }, []);
 
   // ✅ Initialize useScroll only after mount
@@ -34,7 +38,7 @@ export default function ScrollLinked({ searchResults = [] }) {
     }
   }, []);
 
-  const maskImage = scrollXProgress ? useScrollOverflowMask(scrollXProgress) : null;
+  const maskImage = (!isMobile && scrollXProgress) ? useScrollOverflowMask(scrollXProgress) : null;
 
   // ✅ Fetch movies once
   useEffect(() => {
