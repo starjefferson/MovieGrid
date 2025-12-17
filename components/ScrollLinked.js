@@ -8,6 +8,7 @@ import {
   useScroll,
 } from "motion/react";
 import { useRef, useState, useEffect } from "react";
+import { getPopularMovies } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function ScrollLinked({ searchResults = [] }) {
@@ -20,7 +21,6 @@ export default function ScrollLinked({ searchResults = [] }) {
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [error, setError] = useState(null);
 
   // ✅ Hydration guard
   useEffect(() => {
@@ -44,18 +44,10 @@ export default function ScrollLinked({ searchResults = [] }) {
   useEffect(() => {
     async function fetchMovies() {
       try {
-        const response = await fetch('/api/movies');
-        if (!response.ok) {
-          throw new Error('Failed to fetch movies from server');
-        }
-        const data = await response.json();
-        if (data.error) {
-          throw new Error(data.error);
-        }
+        const data = await getPopularMovies(10);
         setMovies(data || []);
       } catch (err) {
         console.error("Error fetching movies:", err);
-        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -78,7 +70,7 @@ export default function ScrollLinked({ searchResults = [] }) {
   if (moviesToShow.length === 0) {
     return (
       <div id="example" className="text-white text-center py-20">
-        {error ? `Error loading movies: ${error}` : "No movies found"}
+        No movies found
       </div>
     );
   }
