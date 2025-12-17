@@ -120,11 +120,11 @@ function StyleSheet() {
     <style>{`
       #example {
         width: 100%;
-        min-height: 100vh;   /* ✅ ensure full screen height */
+        min-height: 100vh;
         position: relative;
         overflow: hidden;
         display: flex;
-        flex-direction: column; /* ✅ stack children vertically */
+        flex-direction: column;
         align-items: center;
         justify-content: flex-start;
         background: #000;
@@ -146,7 +146,8 @@ function StyleSheet() {
       #example ul {
         display: flex;
         list-style: none;
-        height: auto;
+        height: 75vh;   /* ✅ fixed height */
+        width: 100%;    /* ✅ fixed width */
         overflow-x: auto;
         overflow-y: hidden;
         padding: 2vh 4vw;
@@ -154,11 +155,10 @@ function StyleSheet() {
         gap: 2vw;
         scroll-snap-type: x mandatory;
         flex-wrap: nowrap;
-        width: 100%;   /* ✅ fill parent instead of max-content */
       }
 
       #example li {
-        flex: 0 0 100vw;   /* full width on mobile */
+        flex: 0 0 100%;   /* ✅ full width card on mobile */
         height: 75vh;
         border-radius: 1rem;
         scroll-snap-align: start;
