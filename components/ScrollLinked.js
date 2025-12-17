@@ -8,7 +8,6 @@ import {
   useScroll,
 } from "motion/react";
 import { useRef, useState, useEffect } from "react";
-import { getPopularMovies } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function ScrollLinked({ searchResults = [] }) {
@@ -45,7 +44,14 @@ export default function ScrollLinked({ searchResults = [] }) {
   useEffect(() => {
     async function fetchMovies() {
       try {
-        const data = await getPopularMovies(10);
+        const response = await fetch('/api/movies');
+        if (!response.ok) {
+          throw new Error('Failed to fetch movies from server');
+        }
+        const data = await response.json();
+        if (data.error) {
+          throw new Error(data.error);
+        }
         setMovies(data || []);
       } catch (err) {
         console.error("Error fetching movies:", err);
