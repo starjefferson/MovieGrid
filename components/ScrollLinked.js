@@ -16,14 +16,14 @@ export default function ScrollLinked({ searchResults = [] }) {
   useEffect(() => {
     async function fetchMovies() {
       try {
-        const popularMovies = await getPopularMovies(10); // use your helper
+        const popularMovies = await getPopularMovies(10);
         setMovies(popularMovies);
       } catch (err) {
         console.error("Error fetching movies:", err);
       }
     }
     fetchMovies();
-  }, []); 
+  }, []);
 
   // ✅ Use search results if available
   const moviesToShow = searchResults.length > 0 ? searchResults : movies;
@@ -120,12 +120,13 @@ function StyleSheet() {
     <style>{`
       #example {
         width: 100%;
-        height: auto;
+        min-height: 100vh;   /* ✅ ensure full screen height */
         position: relative;
         overflow: hidden;
         display: flex;
+        flex-direction: column; /* ✅ stack children vertically */
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         background: #000;
         padding: 1rem 0;
       }
@@ -153,7 +154,7 @@ function StyleSheet() {
         gap: 2vw;
         scroll-snap-type: x mandatory;
         flex-wrap: nowrap;
-        width: max-content;
+        width: 100%;   /* ✅ fill parent instead of max-content */
       }
 
       #example li {
