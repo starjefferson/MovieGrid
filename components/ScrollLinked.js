@@ -15,36 +15,43 @@ export default function ScrollLinked({ searchResults = [] }) {
   const ref = useRef(null);
   const router = useRouter();
 
-  const { scrollXProgress } = useScroll({ container: ref });
-  const maskImage = useScrollOverflowMask(scrollXProgress);
-
+  const [scrollXProgress, setScrollXProgress] = useState(null);
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch ONCE on mount
+  // ✅ Initialize useScroll only after mount
+  useEffect(() => {
+    if (ref.current) {
+      const { scrollXProgress } = useScroll({ container: ref });
+      setScrollXProgress(scrollXProgress);
+    }
+  }, [ref]);
+
+  const maskImage = scrollXProgress ? useScrollOverflowMask(scrollXProgress) : null;
+
+  // ✅ Fetch movies once
   useEffect(() => {
     let mounted = true;
-
     async function fetchMovies() {
       try {
         const data = await getPopularMovies(10);
         if (mounted) {
           setMovies(data);
-          setLoading(false);
         }
       } catch (err) {
         console.error("Error fetching movies:", err);
-        setLoading(false);
+      } finally {
+        if (mounted) setLoading(false);
       }
     }
-
     fetchMovies();
-    return () => (mounted = false);
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const moviesToShow = searchResults.length > 0 ? searchResults : movies;
 
-  // ✅ Prevent zero-height render on mobile
   if (loading) {
     return (
       <div id="example" className="text-white text-center py-20">
@@ -53,7 +60,7 @@ export default function ScrollLinked({ searchResults = [] }) {
     );
   }
 
-  if (!moviesToShow.length) {
+  if (!moviesToShow || moviesToShow.length === 0) {
     return (
       <div id="example" className="text-white text-center py-20">
         No movies found
@@ -64,33 +71,36 @@ export default function ScrollLinked({ searchResults = [] }) {
   return (
     <div id="example">
       {/* Progress indicator (hidden on mobile) */}
-      <svg id="progress" width="80" height="80" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
-        <motion.circle
-          cx="50"
-          cy="50"
-          r="30"
-          className="indicator"
-          style={{ pathLength: scrollXProgress }}
-        />
-      </svg>
+      {scrollXProgress && (
+        <svg id="progress" width="80" height="80" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
+          <motion.circle
+            cx="50"
+            cy="50"
+            r="30"
+            className="indicator"
+            style={{ pathLength: scrollXProgress }}
+          />
+        </svg>
+      )}
 
       {/* Movie cards */}
-      <motion.ul ref={ref} style={{ maskImage }}>
+      <motion.ul ref={ref} style={maskImage ? { maskImage } : {}}>
         {moviesToShow.map((movie) => (
           <li
             key={movie.id}
             onClick={() => router.push(`/movies/${movie.id}`)}
             style={{
-              backgroundImage: `url(https://image.tmdb.org/t/p/w500${movie.poster_path})`,
+              backgroundImage: movie.poster_path
+                ? `url(https://image.tmdb.org/t/p/w500${movie.poster_path})`
+                : "url('/fallback.jpg')",
               backgroundSize: "cover",
               backgroundPosition: "center",
               cursor: "pointer",
+              backgroundColor: "#222", // fallback color
             }}
           >
-            <div className="movie-title">
-              {movie.title}
-            </div>
+            <div className="movie-title">{movie.title}</div>
           </li>
         ))}
       </motion.ul>
@@ -110,20 +120,11 @@ function useScrollOverflowMask(scrollXProgress) {
 
   useMotionValueEvent(scrollXProgress, "change", (value) => {
     if (value === 0) {
-      animate(
-        maskImage,
-        `linear-gradient(90deg, #000, #000 5%, #000 95%, #0000)`
-      );
+      animate(maskImage, `linear-gradient(90deg, #000, #000 5%, #000 95%, #0000)`);
     } else if (value === 1) {
-      animate(
-        maskImage,
-        `linear-gradient(90deg, #0000, #000 5%, #000 100%, #000)`
-      );
+      animate(maskImage, `linear-gradient(90deg, #0000, #000 5%, #000 100%, #000)`);
     } else {
-      animate(
-        maskImage,
-        `linear-gradient(90deg, #0000, #000 5%, #000 95%, #0000)`
-      );
+      animate(maskImage, `linear-gradient(90deg, #0000, #000 5%, #000 95%, #0000)`);
     }
   });
 
@@ -138,7 +139,7 @@ function StyleSheet() {
     <style>{`
       #example {
         width: 100%;
-        min-height: 80vh;
+        min-height: 100vh;
         position: relative;
         background: #000;
         padding: 1rem 0;
@@ -178,11 +179,21 @@ function StyleSheet() {
         overflow-y: hidden;
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
-        width: max-content;
+        width: 100%;
+        height: 75vh;
+      }
+
+      /* ✅ Hide scrollbar */
+      #example ul::-webkit-scrollbar {
+        display: none;
+      }
+      #example ul {
+        -ms-overflow-style: none;  /* IE/Edge */
+        scrollbar-width: none;     /* Firefox */
       }
 
       #example li {
-        flex: 0 0 100vw;
+        flex: 0 0 100%;
         height: 75vh;
         border-radius: 1rem;
         scroll-snap-align: start;
