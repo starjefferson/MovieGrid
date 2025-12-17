@@ -1,10 +1,12 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function MovieDetailsPage({ params }) {
   // ✅ unwrap params (required in Next.js 16 with Turbopack)
   const { id: movieId } = use(params);
+  const router = useRouter();
 
   const [movie, setMovie] = useState(null);
   const [trailer, setTrailer] = useState(null);
@@ -87,12 +89,12 @@ export default function MovieDetailsPage({ params }) {
       </div>
 
       {/* Back Button */}
-      <a
-        href="/"
+      <button
+        onClick={() => router.push('/')}
         className="absolute top-6 left-6 text-gray-300 hover:text-white font-semibold"
       >
         ← Back
-      </a>
+      </button>
 
       {/* Trailer Modal */}
       {open && trailer && (
