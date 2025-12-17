@@ -1,106 +1,69 @@
 "use client";
-
-import {
-  animate,
-  motion,
-  useMotionValue,
-  useMotionValueEvent,
-  useScroll,
-} from "motion/react";
+import { animate, motion, useMotionValue, useMotionValueEvent, useScroll } from "motion/react";
 import { useRef, useState, useEffect } from "react";
-import { getPopularMovies } from "@/lib/api";
+import { getPopularMovies } from  "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function ScrollLinked({ searchResults = [] }) {
   const ref = useRef(null);
+  const { scrollXProgress } = useScroll({ container: ref });
+  const maskImage = useScrollOverflowMask(scrollXProgress);
+
+  const [movies, setMovies] = useState([]);
   const router = useRouter();
 
-  const [scrollXProgress, setScrollXProgress] = useState(null);
-  const [movies, setMovies] = useState([]);
-  const [loading, setLoading] = useState(true);
 
-  // ✅ Initialize useScroll only after mount
   useEffect(() => {
-    if (ref.current) {
-      const { scrollXProgress } = useScroll({ container: ref });
-      setScrollXProgress(scrollXProgress);
-    }
-  }, [ref]);
-
-  const maskImage = scrollXProgress ? useScrollOverflowMask(scrollXProgress) : null;
-
-  // ✅ Fetch movies once
-  useEffect(() => {
-    let mounted = true;
     async function fetchMovies() {
-      try {
-        const data = await getPopularMovies(10);
-        if (mounted) {
-          setMovies(data);
-        }
-      } catch (err) {
-        console.error("Error fetching movies:", err);
-      } finally {
-        if (mounted) setLoading(false);
+      const cached = localStorage.getItem("popularMovies");
+      if (cached) {
+        setMovies(JSON.parse(cached));
+        return;
       }
+      const popularMovies = await getPopularMovies(10);
+      localStorage.setItem("popularMovies", JSON.stringify(popularMovies));
+      setMovies(popularMovies);
     }
     fetchMovies();
-    return () => {
-      mounted = false;
-    };
   }, []);
 
+  // Use search results if available, otherwise show popular movies
   const moviesToShow = searchResults.length > 0 ? searchResults : movies;
-
-  if (loading) {
-    return (
-      <div id="example" className="text-white text-center py-20">
-        Loading movies…
-      </div>
-    );
-  }
-
-  if (!moviesToShow || moviesToShow.length === 0) {
-    return (
-      <div id="example" className="text-white text-center py-20">
-        No movies found
-      </div>
-    );
-  }
 
   return (
     <div id="example">
-      {/* Progress indicator (hidden on mobile) */}
-      {scrollXProgress && (
-        <svg id="progress" width="80" height="80" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
-          <motion.circle
-            cx="50"
-            cy="50"
-            r="30"
-            className="indicator"
-            style={{ pathLength: scrollXProgress }}
-          />
-        </svg>
-      )}
+      <svg id="progress" width="80" height="80" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
+        <motion.circle cx="50" cy="50" r="30" className="indicator" style={{ pathLength: scrollXProgress }} />
+      </svg>
 
-      {/* Movie cards */}
-      <motion.ul ref={ref} style={maskImage ? { maskImage } : {}}>
-        {moviesToShow.map((movie) => (
+      <motion.ul ref={ref} style={{ maskImage }}>
+        {moviesToShow.map((movie, index) => (
           <li
-            key={movie.id}
-            onClick={() => router.push(`/movies/${movie.id}`)}
+            key={`${movie.id}-${index}`}
+            onClick={() => router.push(`/movies/${movie.id}`)} //navigate each card programmatically): instead of wrapping with link
             style={{
-              backgroundImage: movie.poster_path
-                ? `url(https://image.tmdb.org/t/p/w500${movie.poster_path})`
-                : "url('/fallback.jpg')",
+              backgroundImage: `url(https://image.tmdb.org/t/p/w500${movie.poster_path})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
+              position: "relative",
               cursor: "pointer",
-              backgroundColor: "#222", // fallback color
             }}
           >
-            <div className="movie-title">{movie.title}</div>
+            <div
+              style={{
+                background: "rgba(0,0,0,0.5)",
+                color: "white",
+                padding: "1rem",
+                position: "absolute",
+                bottom: 0,
+                width: "100%",
+                borderRadius: "0 0 1rem 1rem",
+                textAlign: "center",
+              }}
+            >
+              {movie.title}
+            </div>
           </li>
         ))}
       </motion.ul>
@@ -110,129 +73,96 @@ export default function ScrollLinked({ searchResults = [] }) {
   );
 }
 
-/* ============================
-   Scroll mask helper
-============================ */
+// Scroll mask function
 function useScrollOverflowMask(scrollXProgress) {
+  const left = `0%`;
+  const right = `100%`;
+  const leftInset = `5%`;
+  const rightInset = `95%`;
+  const transparent = `#0000`;
+  const opaque = `#000`;
+
   const maskImage = useMotionValue(
-    `linear-gradient(90deg, #000, #000 5%, #000 95%, #0000)`
+    `linear-gradient(90deg, ${opaque}, ${opaque} ${left}, ${opaque} ${rightInset}, ${transparent})`
   );
 
   useMotionValueEvent(scrollXProgress, "change", (value) => {
     if (value === 0) {
-      animate(maskImage, `linear-gradient(90deg, #000, #000 5%, #000 95%, #0000)`);
+      animate(maskImage, `linear-gradient(90deg, ${opaque}, ${opaque} ${left}, ${opaque} ${rightInset}, ${transparent})`);
     } else if (value === 1) {
-      animate(maskImage, `linear-gradient(90deg, #0000, #000 5%, #000 100%, #000)`);
-    } else {
-      animate(maskImage, `linear-gradient(90deg, #0000, #000 5%, #000 95%, #0000)`);
+      animate(maskImage, `linear-gradient(90deg, ${transparent}, ${opaque} ${leftInset}, ${opaque} ${right}, ${opaque})`);
+    } else if (scrollXProgress.getPrevious() === 0 || scrollXProgress.getPrevious() === 1) {
+      animate(maskImage, `linear-gradient(90deg, ${transparent}, ${opaque} ${leftInset}, ${opaque} ${rightInset}, ${transparent})`);
     }
   });
 
   return maskImage;
 }
 
-/* ============================
-   Styles
-============================ */
+// Full-screen & responsive CSS
 function StyleSheet() {
   return (
     <style>{`
       #example {
-        width: 100%;
-        min-height: 100vh;
-        position: relative;
-        background: #000;
-        padding: 1rem 0;
-        overflow-x: hidden;
-        overflow-y: visible;
-      }
+  width: 100%;
+  height: auto;              /* let content define height */
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  padding: 1rem 0;           /* small breathing space */
+}
 
-      /* Progress circle */
-      #progress {
-        position: absolute;
-        top: 1rem;
-        left: 1rem;
-        transform: rotate(-90deg);
-        z-index: 10;
-      }
+#example #progress {
+  position: absolute;
+  top: 2%;
+  left: 2%;
+  transform: rotate(-90deg);
+  z-index: 10;
+}
 
-      #progress .bg {
-        stroke: #0b1011;
-        fill: none;
-        stroke-width: 10%;
-      }
+#example .bg { stroke: #0b1011; }
+#example #progress circle { stroke-dashoffset: 0; stroke-width: 10%; fill: none; }
+#progress .indicator { stroke: var(--accent); }
 
-      #progress .indicator {
-        stroke: var(--accent, red);
-        fill: none;
-        stroke-width: 10%;
-      }
+#example ul {
+  display: flex;
+  list-style: none;
+  height: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 2vh 4vw;
+  margin: 0;
+  gap: 2vw;
+  scroll-snap-type: x mandatory;
+  flex-wrap: nowrap;
+  width: max-content;
+}
 
-      /* Scroll list */
-      #example ul {
-        display: flex;
-        gap: 1rem;
-        padding: 2vh 4vw;
-        margin: 0;
-        list-style: none;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        -webkit-overflow-scrolling: touch;
-        width: 100%;
-        height: 75vh;
-      }
+#example li {
+  flex: 0 0 100vw;   /* full width on mobile */
+  height: 75vh;      /* bigger cards on small screens */
+  border-radius: 1rem;
+  scroll-snap-align: start;
+}
 
-      /* ✅ Hide scrollbar */
-      #example ul::-webkit-scrollbar {
-        display: none;
-      }
-      #example ul {
-        -ms-overflow-style: none;  /* IE/Edge */
-        scrollbar-width: none;     /* Firefox */
-      }
+#example ::-webkit-scrollbar { height: 6px; background: #fff3; }
+#example ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
 
-      #example li {
-        flex: 0 0 100%;
-        height: 75vh;
-        border-radius: 1rem;
-        scroll-snap-align: start;
-        position: relative;
-      }
+@media (min-width: 768px) {
+  #example li {
+    flex: 0 0 40vw;   /* two cards on tablet */
+    height: 60vh;
+  }
+}
 
-      .movie-title {
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        padding: 1rem;
-        text-align: center;
-        background: rgba(0,0,0,0.6);
-        color: white;
-        border-radius: 0 0 1rem 1rem;
-      }
-
-      /* Tablet */
-      @media (min-width: 768px) {
-        #example li {
-          flex: 0 0 40vw;
-          height: 60vh;
-        }
-      }
-
-      /* Desktop */
-      @media (min-width: 1200px) {
-        #example li {
-          flex: 0 0 25vw;
-          height: 70vh;
-        }
-      }
-
-      /* Mobile cleanup */
-      @media (max-width: 640px) {
-        #progress {
-          display: none;
-        }
-      }
-    `}</style>
+@media (min-width: 1200px) {
+  #example li {
+    flex: 0 0 25vw;   /* four cards on desktop */
+    height: 70vh;
+  }
+} `}</style>
   );
 }
