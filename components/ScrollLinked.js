@@ -15,8 +15,9 @@ export default function ScrollLinked({ searchResults = [] }) {
   const ref = useRef(null);
   const router = useRouter();
 
-  // ✅ Safe scroll state
-  const [scrollXProgress, setScrollXProgress] = useState(null);
+  const { scrollXProgress } = useScroll({ container: ref });
+  const maskImage = useScrollOverflowMask(scrollXProgress);
+
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
@@ -25,16 +26,6 @@ export default function ScrollLinked({ searchResults = [] }) {
   useEffect(() => {
     setHydrated(true);
   }, []);
-
-  // ✅ Initialize useScroll only after mount
-  useEffect(() => {
-    if (ref.current) {
-      const { scrollXProgress } = useScroll({ container: ref });
-      setScrollXProgress(scrollXProgress);
-    }
-  }, []);
-
-  const maskImage = scrollXProgress ? useScrollOverflowMask(scrollXProgress) : null;
 
   // ✅ Fetch movies once
   useEffect(() => {
@@ -53,7 +44,7 @@ export default function ScrollLinked({ searchResults = [] }) {
 
   const moviesToShow = searchResults.length > 0 ? searchResults : movies;
 
-  // ✅ Show loading until hydration + fetch complete
+  // ✅ Always show loading until hydration + fetch complete
   if (!hydrated || loading) {
     return (
       <div id="example" className="text-white text-center py-20">
@@ -74,21 +65,19 @@ export default function ScrollLinked({ searchResults = [] }) {
   return (
     <div id="example">
       {/* Progress indicator (hidden on mobile) */}
-      {scrollXProgress && (
-        <svg id="progress" width="80" height="80" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
-          <motion.circle
-            cx="50"
-            cy="50"
-            r="30"
-            className="indicator"
-            style={{ pathLength: scrollXProgress }}
-          />
-        </svg>
-      )}
+      <svg id="progress" width="80" height="80" viewBox="0 0 100 100">
+        <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
+        <motion.circle
+          cx="50"
+          cy="50"
+          r="30"
+          className="indicator"
+          style={{ pathLength: scrollXProgress }}
+        />
+      </svg>
 
       {/* Movie cards */}
-      <motion.ul ref={ref} style={maskImage ? { maskImage } : {}}>
+      <motion.ul ref={ref} style={{ maskImage }}>
         {moviesToShow.map((movie) => (
           <li
             key={movie.id}
