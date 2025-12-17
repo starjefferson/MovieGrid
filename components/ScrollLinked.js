@@ -21,6 +21,7 @@ export default function ScrollLinked({ searchResults = [] }) {
   const [loading, setLoading] = useState(true);
   const [hydrated, setHydrated] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [error, setError] = useState(null);
 
   // ✅ Hydration guard
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function ScrollLinked({ searchResults = [] }) {
         setMovies(data || []);
       } catch (err) {
         console.error("Error fetching movies:", err);
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -70,7 +72,7 @@ export default function ScrollLinked({ searchResults = [] }) {
   if (moviesToShow.length === 0) {
     return (
       <div id="example" className="text-white text-center py-20">
-        No movies found
+        {error ? `Error loading movies: ${error}` : "No movies found"}
       </div>
     );
   }
