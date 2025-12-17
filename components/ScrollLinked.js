@@ -1,7 +1,7 @@
 "use client";
 import { animate, motion, useMotionValue, useMotionValueEvent, useScroll } from "motion/react";
 import { useRef, useState, useEffect } from "react";
-import { getPopularMovies } from  "@/lib/api";
+import { getPopularMovies } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 export default function ScrollLinked({ searchResults = [] }) {
@@ -12,36 +12,42 @@ export default function ScrollLinked({ searchResults = [] }) {
   const [movies, setMovies] = useState([]);
   const router = useRouter();
 
-
+  // ✅ Fetch movies once on mount
   useEffect(() => {
     async function fetchMovies() {
-      const cached = localStorage.getItem("popularMovies");
-      if (cached) {
-        setMovies(JSON.parse(cached));
-        return;
+      try {
+        const popularMovies = await getPopularMovies(10); // use your helper
+        setMovies(popularMovies);
+      } catch (err) {
+        console.error("Error fetching movies:", err);
       }
-      const popularMovies = await getPopularMovies(10);
-      localStorage.setItem("popularMovies", JSON.stringify(popularMovies));
-      setMovies(popularMovies);
     }
     fetchMovies();
-  }, []);
+  }, []); 
 
-  // Use search results if available, otherwise show popular movies
+  // ✅ Use search results if available
   const moviesToShow = searchResults.length > 0 ? searchResults : movies;
 
   return (
     <div id="example">
+      {/* Progress circle */}
       <svg id="progress" width="80" height="80" viewBox="0 0 100 100">
         <circle cx="50" cy="50" r="30" pathLength="1" className="bg" />
-        <motion.circle cx="50" cy="50" r="30" className="indicator" style={{ pathLength: scrollXProgress }} />
+        <motion.circle
+          cx="50"
+          cy="50"
+          r="30"
+          className="indicator"
+          style={{ pathLength: scrollXProgress }}
+        />
       </svg>
 
+      {/* Movie list */}
       <motion.ul ref={ref} style={{ maskImage }}>
         {moviesToShow.map((movie, index) => (
           <li
             key={`${movie.id}-${index}`}
-            onClick={() => router.push(`/movies/${movie.id}`)} //navigate each card programmatically): instead of wrapping with link
+            onClick={() => router.push(`/movies/${movie.id}`)}
             style={{
               backgroundImage: `url(https://image.tmdb.org/t/p/w500${movie.poster_path})`,
               backgroundSize: "cover",
@@ -73,7 +79,7 @@ export default function ScrollLinked({ searchResults = [] }) {
   );
 }
 
-// Scroll mask function
+// ✅ Scroll mask function
 function useScrollOverflowMask(scrollXProgress) {
   const left = `0%`;
   const right = `100%`;
@@ -88,81 +94,91 @@ function useScrollOverflowMask(scrollXProgress) {
 
   useMotionValueEvent(scrollXProgress, "change", (value) => {
     if (value === 0) {
-      animate(maskImage, `linear-gradient(90deg, ${opaque}, ${opaque} ${left}, ${opaque} ${rightInset}, ${transparent})`);
+      animate(
+        maskImage,
+        `linear-gradient(90deg, ${opaque}, ${opaque} ${left}, ${opaque} ${rightInset}, ${transparent})`
+      );
     } else if (value === 1) {
-      animate(maskImage, `linear-gradient(90deg, ${transparent}, ${opaque} ${leftInset}, ${opaque} ${right}, ${opaque})`);
+      animate(
+        maskImage,
+        `linear-gradient(90deg, ${transparent}, ${opaque} ${leftInset}, ${opaque} ${right}, ${opaque})`
+      );
     } else if (scrollXProgress.getPrevious() === 0 || scrollXProgress.getPrevious() === 1) {
-      animate(maskImage, `linear-gradient(90deg, ${transparent}, ${opaque} ${leftInset}, ${opaque} ${rightInset}, ${transparent})`);
+      animate(
+        maskImage,
+        `linear-gradient(90deg, ${transparent}, ${opaque} ${leftInset}, ${opaque} ${rightInset}, ${transparent})`
+      );
     }
   });
 
   return maskImage;
 }
 
-// Full-screen & responsive CSS
+// ✅ Stylesheet
 function StyleSheet() {
   return (
     <style>{`
       #example {
-  width: 100%;
-  height: auto;              /* let content define height */
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #000;
-  padding: 1rem 0;           /* small breathing space */
-}
+        width: 100%;
+        height: auto;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #000;
+        padding: 1rem 0;
+      }
 
-#example #progress {
-  position: absolute;
-  top: 2%;
-  left: 2%;
-  transform: rotate(-90deg);
-  z-index: 10;
-}
+      #example #progress {
+        position: absolute;
+        top: 2%;
+        left: 2%;
+        transform: rotate(-90deg);
+        z-index: 10;
+      }
 
-#example .bg { stroke: #0b1011; }
-#example #progress circle { stroke-dashoffset: 0; stroke-width: 10%; fill: none; }
-#progress .indicator { stroke: var(--accent); }
+      #example .bg { stroke: #0b1011; }
+      #example #progress circle { stroke-dashoffset: 0; stroke-width: 10%; fill: none; }
+      #progress .indicator { stroke: var(--accent); }
 
-#example ul {
-  display: flex;
-  list-style: none;
-  height: auto;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding: 2vh 4vw;
-  margin: 0;
-  gap: 2vw;
-  scroll-snap-type: x mandatory;
-  flex-wrap: nowrap;
-  width: max-content;
-}
+      #example ul {
+        display: flex;
+        list-style: none;
+        height: auto;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 2vh 4vw;
+        margin: 0;
+        gap: 2vw;
+        scroll-snap-type: x mandatory;
+        flex-wrap: nowrap;
+        width: max-content;
+      }
 
-#example li {
-  flex: 0 0 100vw;   /* full width on mobile */
-  height: 75vh;      /* bigger cards on small screens */
-  border-radius: 1rem;
-  scroll-snap-align: start;
-}
+      #example li {
+        flex: 0 0 100vw;   /* full width on mobile */
+        height: 75vh;
+        border-radius: 1rem;
+        scroll-snap-align: start;
+      }
 
-#example ::-webkit-scrollbar { height: 6px; background: #fff3; }
-#example ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+      #example ::-webkit-scrollbar { height: 6px; background: #fff3; }
+      #example ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
 
-@media (min-width: 768px) {
-  #example li {
-    flex: 0 0 40vw;   /* two cards on tablet */
-    height: 60vh;
-  }
-}
+      @media (min-width: 768px) {
+        #example li {
+          flex: 0 0 40vw;   /* two cards on tablet */
+          height: 60vh;
+        }
+      }
 
-@media (min-width: 1200px) {
-  #example li {
-    flex: 0 0 25vw;   /* four cards on desktop */
-    height: 70vh;
-  }
-} `}</style>
+      @media (min-width: 1200px) {
+        #example li {
+          flex: 0 0 25vw;   /* four cards on desktop */
+          height: 70vh;
+        }
+      }
+    `}</style>
   );
 }
