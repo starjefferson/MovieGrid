@@ -16,14 +16,14 @@ export default function ScrollLinked({ searchResults = [] }) {
   useEffect(() => {
     async function fetchMovies() {
       try {
-        const popularMovies = await getPopularMovies(10);
+        const popularMovies = await getPopularMovies(10); // use your helper
         setMovies(popularMovies);
       } catch (err) {
         console.error("Error fetching movies:", err);
       }
     }
     fetchMovies();
-  }, []);
+  }, []); 
 
   // ✅ Use search results if available
   const moviesToShow = searchResults.length > 0 ? searchResults : movies;
@@ -120,13 +120,12 @@ function StyleSheet() {
     <style>{`
       #example {
         width: 100%;
-        min-height: 100vh;
+        height: auto;
         position: relative;
         overflow: hidden;
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
+        justify-content: center;
         background: #000;
         padding: 1rem 0;
       }
@@ -146,8 +145,7 @@ function StyleSheet() {
       #example ul {
         display: flex;
         list-style: none;
-        height: 75vh;   /* ✅ fixed height */
-        width: 100%;    /* ✅ fixed width */
+        height: auto;
         overflow-x: auto;
         overflow-y: hidden;
         padding: 2vh 4vw;
@@ -155,10 +153,11 @@ function StyleSheet() {
         gap: 2vw;
         scroll-snap-type: x mandatory;
         flex-wrap: nowrap;
+        width: max-content;
       }
 
       #example li {
-        flex: 0 0 100%;   /* ✅ full width card on mobile */
+        flex: 0 0 100vw;   /* full width on mobile */
         height: 75vh;
         border-radius: 1rem;
         scroll-snap-align: start;
