@@ -21,12 +21,6 @@ export default async function LoginPage() {
           {/* OAuth buttons */}
           <LoginFormClient />
 
-          <p className="text-gray-400 text-sm text-center mt-4">
-            New to MovieGrid?{" "}
-            <a href="/auth/signup" className="text-white hover:underline">
-              Sign up now
-            </a>
-          </p>
         </div>
       </div>
     </div>
