@@ -1,3 +1,5 @@
+"use client";
+
 export default function Footer() {
   return (
     <footer className="w-full bg-zinc-950 border-t border-zinc-900 text-zinc-400 py-12 lg:py-16">

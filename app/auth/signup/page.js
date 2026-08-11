@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
