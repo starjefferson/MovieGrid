@@ -10,6 +10,7 @@ import {
 import { useRef, useState, useEffect } from "react";
 import { getPopularMovies } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { MovieGridSkeleton } from "@/components/ui/Skeleton";
 
 export default function ScrollLinked({ searchResults = [] }) {
   const ref = useRef(null);
@@ -59,11 +60,7 @@ export default function ScrollLinked({ searchResults = [] }) {
 
   // ✅ Show loading until hydration + fetch complete
   if (!hydrated || loading) {
-    return (
-      <div id="example" className="text-white text-center py-20">
-        Loading movies…
-      </div>
-    );
+    return <MovieGridSkeleton count={8} />;
   }
 
   // ✅ Only show "No movies found" if hydrated + fetch complete
@@ -97,6 +94,7 @@ export default function ScrollLinked({ searchResults = [] }) {
           <li
             key={movie.id}
             onClick={() => router.push(`/movies/${movie.id}`)}
+            className="group overflow-hidden rounded-2xl border border-zinc-800/80 shadow-2xl transition-all duration-300 hover:border-red-600/50 hover:shadow-red-600/20"
             style={{
               backgroundImage: movie.poster_path
                 ? `url(https://image.tmdb.org/t/p/w500${movie.poster_path})`
@@ -104,10 +102,28 @@ export default function ScrollLinked({ searchResults = [] }) {
               backgroundSize: "cover",
               backgroundPosition: "center",
               cursor: "pointer",
-              backgroundColor: "#222", // fallback color
+              backgroundColor: "#18181b", // fallback color
             }}
           >
-            <div className="movie-title">{movie.title}</div>
+            {/* Top Rating Badge */}
+            {movie.vote_average > 0 && (
+              <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-md border border-zinc-700/60 px-2.5 py-1 rounded-full text-xs font-semibold text-amber-400 flex items-center gap-1 shadow-lg z-10">
+                <span>⭐</span>
+                <span>{movie.vote_average.toFixed(1)}</span>
+              </div>
+            )}
+
+            {/* Bottom Title Gradient Banner */}
+            <div className="movie-title bg-gradient-to-t from-black via-black/85 to-transparent p-5 flex flex-col justify-end">
+              <span className="font-bold text-lg text-white group-hover:text-red-500 transition-colors line-clamp-2">
+                {movie.title}
+              </span>
+              {movie.release_date && (
+                <span className="text-xs text-zinc-400 font-medium mt-1">
+                  {movie.release_date.split("-")[0]}
+                </span>
+              )}
+            </div>
           </li>
         ))}
       </motion.ul>

@@ -27,32 +27,46 @@ export default function LoginForm() {
   }
 
   return (
-    <form onSubmit={handleLogin}>
-      <div className="flex flex-col gap-6 w-full">
-        <input
-          type="email"
-          name="userLoginId"
-          required
-          className="w-full px-4 py-3 bg-[#333] text-white rounded-md"
-          placeholder="Email"
-        />
+    <form onSubmit={handleLogin} className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 w-full">
+        <div>
+          <label className="block text-xs font-semibold text-zinc-400 mb-1">
+            Email Address
+          </label>
+          <input
+            type="email"
+            name="userLoginId"
+            required
+            className="w-full px-4 py-3 bg-zinc-900/90 border border-zinc-800 text-white rounded-xl focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 transition-all placeholder:text-zinc-500 text-sm"
+            placeholder="name@example.com"
+          />
+        </div>
 
-        <input
-          type="password"
-          name="password"
-          required
-          className="w-full px-4 py-3 bg-[#333] text-white rounded-md"
-          placeholder="Password"
-        />
+        <div>
+          <label className="block text-xs font-semibold text-zinc-400 mb-1">
+            Password
+          </label>
+          <input
+            type="password"
+            name="password"
+            required
+            className="w-full px-4 py-3 bg-zinc-900/90 border border-zinc-800 text-white rounded-xl focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-600/30 transition-all placeholder:text-zinc-500 text-sm"
+            placeholder="••••••••"
+          />
+        </div>
       </div>
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {error && (
+        <p className="text-red-400 text-xs font-semibold bg-red-950/60 border border-red-800/60 p-3 rounded-xl text-center">
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"
-        className="w-full bg-red-600 hover:bg-red-700 transition text-white font-semibold py-3 rounded-md mt-6"
+        className="w-full bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 transition-all text-white font-bold py-3.5 rounded-xl shadow-lg shadow-red-600/25 mt-2 cursor-pointer active:scale-[0.99]"
       >
-        Login
+        Sign In
       </button>
     </form>
   );

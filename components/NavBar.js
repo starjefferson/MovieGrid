@@ -1,4 +1,5 @@
 "use client";
+
 import Logo from "./MovieGrid-logo";
 import { MdSettingsAccessibility } from "react-icons/md";
 import SearchBar from "./SearchBar";
@@ -7,146 +8,159 @@ import { signOut } from "next-auth/react";
 import { TiThMenuOutline } from "react-icons/ti";
 import { useState } from "react";
 
-
 export default function NavBar({ setSearchResults }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-
-
   // Called by SearchBar when the user submits a query
   async function handleSearch(query) {
     if (!query || !query.trim()) return;
-
     const results = await searchMovies(query, 20);
     setSearchResults(results); // send results to parent
   }
 
   return (
-    <>
-      <div className="hidden md:w-full md:h-10 md:bg-blue-950 md:flex md:items-center md:justify-between md:py-6 pr-2 md:text-gray-200 md:font-semibold md:text-sm">
-        <div className="flex gap-10 items-center">
-          <div className="flex">
+    <header className="sticky top-0 z-50 w-full bg-zinc-950/85 backdrop-blur-xl border-b border-zinc-800/80 shadow-2xl transition-all">
+      {/* Desktop Header */}
+      <div className="hidden md:flex items-center justify-between max-w-7xl mx-auto px-6 py-3">
+        <div className="flex items-center gap-8">
+          <a href="/dashboard" className="flex items-center hover:opacity-90 transition-opacity">
             <Logo />
-            <Logo />
-          </div>
-
-          <div className="">
-            <ul className="flex justify-center items-center pl-20 gap-2 cursor-pointer text-gray-300 text-sm font-bold ">
-              <a href="/Home" className="hover:text-red-500">
-                <li>Home</li>
-              </a>
-              <a href="/New&popular" className="hover:text-red-500">
-                <li>Movies</li>
-              </a>
-              <a href="/New&popular" className="hover:text-red-500">
-                <li>Shows</li>
-              </a>
-              <a href="/New&popular" className="hover:text-red-500">
-                <li>Sponsor</li>
-              </a>
-              <a href="/New&popular" className="hover:text-red-500">
-                <li>Support</li>
-              </a>
-              <a href="/New&popular" className="hover:text-red-500">
-                <li>About-us</li>
-              </a>
-            </ul>
-          </div>
-        </div>
-
-        <div className="relative group inline-block">
-          <a
-            href="#"
-            className="flex items-center gap-2 cursor-pointer text-white hover:text-red-400 transition"
-          >
-            <MdSettingsAccessibility size={30} />
           </a>
 
-          <div className="absolute left-0 top-full hidden group-hover:block bg-gray-900 text-white rounded-md shadow-lg w-40 p-2 z-50">
-            <a
-              href="/profile"
-              className="block px-4 py-2 hover:bg-gray-700 rounded"
-            >
-              My Profile
-            </a>
-            <a
-              href="/settings"
-              className="block px-4 py-2 hover:bg-gray-700 rounded"
-            >
-              Settings
-            </a>
-            <a
-              href="/logout"
-              onClick={(e) => {
-                e.preventDefault();
-                signOut({ callbackUrl: "/auth/login" });
-              }}
-              className="block px-4 py-2 hover:bg-red-600 rounded"
-            >
-              Logout
-            </a>
-          </div>
+          <nav>
+            <ul className="flex items-center gap-6 text-sm font-semibold text-zinc-300">
+              <li>
+                <a href="/dashboard" className="hover:text-red-500 transition-colors">
+                  Home
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard" className="hover:text-red-500 transition-colors">
+                  Movies
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard" className="hover:text-red-500 transition-colors">
+                  Shows
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard" className="hover:text-red-500 transition-colors">
+                  Sponsor
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard" className="hover:text-red-500 transition-colors">
+                  Support
+                </a>
+              </li>
+              <li>
+                <a href="/dashboard" className="hover:text-red-500 transition-colors">
+                  About Us
+                </a>
+              </li>
+            </ul>
+          </nav>
         </div>
 
-        {/* Pass handleSearch directly — SearchBar will provide the query */}
-        <SearchBar onSearch={handleSearch} />
-      </div>
+        <div className="flex items-center gap-6">
+          <SearchBar onSearch={handleSearch} />
 
-      {/*mobile screen*/}
-
-      <div className="w-full h-10 py-4 bg-blue-950 flex items-center justify-around text-gray-200 font-semibold text-sm md:hidden">
-       {/* Mobile menu */}
-       <div className="relative inline-block">
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="flex items-center gap-2 text-white hover:text-red-400 transition"
-        >
-          <TiThMenuOutline size={30} />
-        </button>
-
-        {menuOpen && (
-          <div className="absolute left-0 top-full bg-gray-900 text-gray-300 rounded-md shadow-lg w-20 pr-2 z-50">
-            <a href="/dashboard" className="block px-4 py-2 hover:bg-gray-700 rounded">Home</a>
-            <a href="#" className="block px-4 py-2 hover:bg-gray-700 rounded">Movies</a>
-            <a href="#" className="block px-4 py-2 hover:bg-gray-700 rounded">Shows</a>
-            <a href="#" className="block px-4 py-2 hover:bg-gray-700 rounded">Sponsor</a>
-            <a href="#" className="block px-4 py-2 hover:bg-gray-700 rounded">About-us</a>
-            <a href="#" className="block px-4 py-2 hover:bg-gray-700 rounded">Support</a>
-          </div>
-        )}
-       </div>
-
-
-         {/* Pass handleSearch directly — SearchBar will provide the query */}
-            <SearchBar onSearch={handleSearch} />
-
-        <div className="relative inline-block">
-        <button
-          onClick={() => setSettingsOpen(!settingsOpen)}
-          className="flex items-center gap-2 text-white hover:text-red-400 transition"
-        >
-          <MdSettingsAccessibility size={30} />
-        </button>
-
-        {settingsOpen && (
-          <div className="absolute right-0 top-full bg-gray-900 text-gray-300 rounded-md shadow-lg w-20 pr-2 z-50">
-            <a href="/profile" className="block px-4 py-2 hover:bg-gray-700 rounded">Profile</a>
-            <a href="/settings" className="block px-4 py-2 hover:bg-gray-700 rounded">Settings</a>
-            <a
-              href="/logout"
-              onClick={(e) => {
-                e.preventDefault();
-                signOut({ callbackUrl: "/auth/login" });
-              }}
-              className="block px-4 py-2 hover:bg-red-600 rounded"
+          {/* Profile / Settings Dropdown */}
+          <div className="relative group">
+            <button
+              aria-label="User Menu"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-zinc-900 border border-zinc-700/80 text-zinc-300 hover:text-white hover:border-red-500 transition-all shadow-md"
             >
-              Logout
-            </a>
+              <MdSettingsAccessibility size={22} />
+            </button>
+
+            <div className="absolute right-0 top-full mt-2 hidden group-hover:flex flex-col bg-zinc-900/95 backdrop-blur-lg border border-zinc-800 shadow-2xl rounded-xl w-44 p-2 z-50 animate-in fade-in slide-in-from-top-2">
+              <a
+                href="/profile"
+                className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 hover:text-white rounded-lg transition-colors"
+              >
+                My Profile
+              </a>
+              <a
+                href="/settings"
+                className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 hover:text-white rounded-lg transition-colors"
+              >
+                Settings
+              </a>
+              <hr className="my-1 border-zinc-800" />
+              <a
+                href="/logout"
+                onClick={(e) => {
+                  e.preventDefault();
+                  signOut({ callbackUrl: "/auth/login" });
+                }}
+                className="px-4 py-2 text-sm text-red-400 hover:bg-red-600 hover:text-white rounded-lg transition-colors"
+              >
+                Logout
+              </a>
+            </div>
           </div>
-        )}
+        </div>
       </div>
+
+      {/* Mobile Header */}
+      <div className="md:hidden flex items-center justify-between px-4 py-3 bg-zinc-950/90 border-b border-zinc-800">
+        {/* Mobile Menu Toggle */}
+        <div className="relative">
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="p-2 text-zinc-300 hover:text-red-500 transition-colors rounded-lg bg-zinc-900/80 border border-zinc-800"
+          >
+            <TiThMenuOutline size={22} />
+          </button>
+
+          {menuOpen && (
+            <div className="absolute left-0 top-full mt-2 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-xl shadow-2xl w-48 p-2 z-50 flex flex-col gap-1">
+              <a href="/dashboard" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">Home</a>
+              <a href="/dashboard" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">Movies</a>
+              <a href="/dashboard" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">Shows</a>
+              <a href="/dashboard" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">Sponsor</a>
+              <a href="/dashboard" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">About Us</a>
+              <a href="/dashboard" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">Support</a>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile SearchBar */}
+        <div className="flex-1 max-w-[190px] mx-2">
+          <SearchBar onSearch={handleSearch} />
+        </div>
+
+        {/* Mobile Settings Toggle */}
+        <div className="relative">
+          <button
+            onClick={() => setSettingsOpen(!settingsOpen)}
+            className="p-2 text-zinc-300 hover:text-red-500 transition-colors rounded-lg bg-zinc-900/80 border border-zinc-800"
+          >
+            <MdSettingsAccessibility size={22} />
+          </button>
+
+          {settingsOpen && (
+            <div className="absolute right-0 top-full mt-2 bg-zinc-900/95 backdrop-blur-xl border border-zinc-800 rounded-xl shadow-2xl w-44 p-2 z-50 flex flex-col gap-1">
+              <a href="/profile" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">Profile</a>
+              <a href="/settings" className="px-4 py-2 text-sm text-zinc-200 hover:bg-zinc-800 rounded-lg">Settings</a>
+              <hr className="my-1 border-zinc-800" />
+              <a
+                href="/logout"
+                onClick={(e) => {
+                  e.preventDefault();
+                  signOut({ callbackUrl: "/auth/login" });
+                }}
+                className="px-4 py-2 text-sm text-red-400 hover:bg-red-600 hover:text-white rounded-lg"
+              >
+                Logout
+              </a>
+            </div>
+          )}
+        </div>
       </div>
-    </>
+    </header>
   );
 }
